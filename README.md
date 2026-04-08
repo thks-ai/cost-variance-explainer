@@ -100,6 +100,19 @@ README.md
 
 \## 🛠 セットアップ
 
+### 🔑 OpenAI APIキーについて
+本ツールを利用するには OpenAI APIキーが必要です。
+各自で取得し、環境変数 OPENAI_API_KEY に設定してください。
+
+Windows:
+setx OPENAI_API_KEY "sk-xxxx"
+
+Mac / Linux:
+export OPENAI_API_KEY="sk-xxxx"
+
+※ APIキーは絶対に公開しないでください。
+※ 本リポジトリには APIキーは含まれていません。
+
 
 
 \### 1. ライブラリのインストール
