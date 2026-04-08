@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ファイルアップロード</title>
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            padding: 30px;
+            background: #f5f7fa;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+
+        .dropzone {
+            width: 100%;
+            padding: 50px;
+            border: 2px dashed #4a90e2;
+            border-radius: 12px;
+            text-align: center;
+            color: #4a90e2;
+            background: #fff;
+            transition: 0.2s;
+        }
+
+        .dropzone.dragover {
+            background-color: #e8f4ff;
+            border-color: #1e70d1;
+        }
+
+        button {
+            background: #4a90e2;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            margin-top: 15px;
+        }
+
+        button:hover {
+            background: #3b7ac4;
+        }
+
+        #loading {
+            display: none;
+            margin-top: 20px;
+            font-size: 16px;
+            color: #555;
+        }
+
+        #resultBox {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        #resultBox.success {
+            background-color: #e8ffe8;
+            border: 1px solid #4caf50;
+        }
+
+        #resultBox.error {
+            background-color: #ffe8e8;
+            border: 1px solid #f44336;
+        }
+
+        .file-card {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border-left: 5px solid #4a90e2;
+        }
+
+        .file-card h4 {
+            margin: 0 0 8px 0;
+        }
+
+        .file-card ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>📁 ファイルアップロード</h2>
+
+    <div id="dropzone" class="dropzone">
+        ここにファイルをドラッグ＆ドロップ
+    </div>
+
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" name="files" id="fileInput" multiple>
+        <br>
+        <button type="submit">アップロード</button>
+    </form>
+
+    <div id="loading">⏳ 処理中です… 少しお待ちください。</div>
+
+    <div id="resultBox"></div>
+</div>
+
+<script>
+    const dropzone = document.getElementById("dropzone");
+    const fileInput = document.getElementById("fileInput");
+    const uploadForm = document.getElementById("uploadForm");
+    const resultBox = document.getElementById("resultBox");
+    const loading = document.getElementById("loading");
+
+    dropzone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropzone.classList.add("dragover");
+    });
+
+    dropzone.addEventListener("dragleave", () => {
+        dropzone.classList.remove("dragover");
+    });
+
+    dropzone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropzone.classList.remove("dragover");
+        fileInput.files = e.dataTransfer.files;
+    });
+
+    uploadForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        resultBox.style.display = "none";
+        loading.style.display = "block";
+
+        const formData = new FormData(uploadForm);
+
+        const response = await fetch("/upload_files", {
+            method: "POST",
+            body: formData
+        });
+
+        const result = await response.json();
+
+        loading.style.display = "none";
+        resultBox.style.display = "block";
+
+        if (result.status === "ok") {
+            resultBox.className = "success";
+            resultBox.innerHTML = `
+                <h3>✅ 取り込み完了</h3>
+                <p>${result.message}</p>
+                <p><strong>ベクトル再構築:</strong> ${result.vector_status}</p>
+            `;
+
+            result.results.forEach(file => {
+                const card = document.createElement("div");
+                card.className = "file-card";
+
+                card.innerHTML = `
+                    <h4>📄 ${file.file}（${file.type}）</h4>
+                    <ul>
+                        ${file.extracted_texts.slice(0, 5).map(t => `<li>${t}</li>`).join("")}
+                    </ul>
+                    <p style="color:#777;">※ 表示は最大5件。全文はDBに登録済み。</p>
+                `;
+
+                resultBox.appendChild(card);
+            });
+
+        } else {
+            resultBox.className = "error";
+            resultBox.innerHTML = `
+                <h3>❌ エラーが発生しました</h3>
+                <pre>${JSON.stringify(result, null, 2)}</pre>
+            `;
+        }
+    });
+</script>
+
+</body>
+</html>
+
+

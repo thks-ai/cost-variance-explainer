@@ -1,63 +1,203 @@
-# cost-variance-explainer
-原価差異が発生した際の「原因説明文」をAIで自動生成するツールです。  
-Excel・PDF・Word・PowerPoint などの資料を読み取り、RAG（検索拡張生成）を用いて、  
-根拠に基づいた自然な説明文を自動生成します。
+\# 📘 原価差異ナレッジAI（Cost Variance Explainer）
 
----
 
-## 🚀 主な機能
-- 原価差異の原因説明文をAIが自動生成
-- Excel / PDF / Word / PowerPoint からのテキスト抽出に対応
-- 過去の原因データベースを用いた RAG 検索
-- エビデンス付きの説明文生成（根拠ハイライト）
-- Excel 形式でのレポート出力に対応
-- 非エンジニアでも使える GUI（ドラッグ＆ドロップ対応）
 
----
+製造業の \*\*原価差異の原因説明文を AI が自動生成\*\*するツールです。  
 
-## 🧠 技術構成
-- Python / FastAPI
-- OpenAI GPT-4o-mini（または highspeed）
-- FAISS ベクトル検索
-- LangChain（RAG 構築）
-- PyMuPDF / python-docx / openpyxl などの抽出系ライブラリ
+Word / Excel / PDF / PPT / TXT / フォルダ をドラッグ＆ドロップするだけで、  
 
----
+資料の内容を読み取り、RAG（過去理由文検索）＋ LLM により  
 
-## 📁 ディレクトリ構成（例）
+\*\*最も妥当な原因説明文を生成\*\*します。
+
+
+
+\---
+
+
+
+\## 🚀 特徴
+
+
+
+\- 📁 \*\*複数ファイルの一括取り込み（フォルダ対応）\*\*
+
+\- 🔍 \*\*FAISS ベースの RAG（過去理由文検索）\*\*
+
+\- 🤖 \*\*OpenAI GPT-4o-mini による理由文生成\*\*
+
+\- 📊 \*\*根拠のハイライト表示\*\*
+
+\- 📝 \*\*理由文の自動要約・品質スコアリング（拡張可能）\*\*
+
+\- 📦 \*\*SQLite + ベクトルストアによる自己学習\*\*
+
+\- 🖥 \*\*ブラウザで動く直感的な UI（FastAPI + Jinja2）\*\*
+
+
+
+\---
+
+
+
+\## 🧩 技術スタック
+
+
+
+\- \*\*FastAPI\*\*
+
+\- \*\*OpenAI API\*\*
+
+\- \*\*FAISS（ベクトル検索）\*\*
+
+\- \*\*SentenceTransformer（MiniLM）\*\*
+
+\- \*\*SQLite\*\*
+
+\- \*\*Jinja2 Templates\*\*
+
+\- \*\*JavaScript / HTML / CSS\*\*
+
+
+
+\---
+
+
+
+\## 📁 ディレクトリ構成
+
+
 
 ```
-
 app/
+
 ├─ main.py
-├─ rag/
-├─ extractor/
-├─ generator/
-templates/
+
+├─ api/
+
+├─ services/
+
+├─ database/
+
+├─ vector\_store/
+
+├─ templates/
+
+└─ static/
+
+scripts/
+
 requirements.txt
+
 README.md
 
 ```
 
 
----
+\---
 
-## 📝 使い方
-1. GUI 画面を起動  
-2. 原価差異に関する資料（Excel / PDF / Word / PPT）をドラッグ＆ドロップ  
-3. AI が内容を解析し、原因説明文を生成  
-4. 必要に応じて編集し、Excel 形式で出力
 
----
 
-## 📌 想定ユーザー
-- 製造業の原価管理担当者  
-- 経理・管理会計部門  
-- 原価差異の説明文作成に時間がかかっている現場  
-- レポート作成を効率化したい企業
+\## 🛠 セットアップ
 
----
 
-## 📄 ライセンス
+
+\### 1. ライブラリのインストール
+
+pip install -r requirements.txt
+
+
+
+\### 2. サーバー起動
+
+uvicorn app.main:app --reload
+
+
+
+\### 3. ブラウザでアクセス
+
+http://localhost:8000
+
+
+
+\---
+
+
+
+\## 🧪 主な API エンドポイント
+
+
+
+| エンドポイント | 説明 |
+
+|---------------|------|
+
+| `/analyze` | 資料を解析し、AI が総評を生成 |
+
+| `/generate` | 原価差異の理由文を生成 |
+
+| `/upload\_files` | ファイル取り込み（フォルダ対応） |
+
+| `/edit` | 理由文の編集画面 |
+
+
+
+\---
+
+
+
+\## 🔐 セキュリティ
+
+
+
+以下は `.gitignore` により GitHub にアップロードされません：
+
+
+
+\- `data/`（DB・ベクトルデータ）
+
+\- `uploaded/`（ユーザーアップロード）
+
+\- `venv/`
+
+\- `\_\_pycache\_\_/`
+
+\- `\*.db`
+
+\- `\*.pyc`
+
+\- `app/vector\_store/\*.faiss`
+
+\- `app/vector\_store/\*.pkl`
+
+
+
+\---
+
+
+
+\## 📄 ライセンス
+
+
+
 MIT License
+
+
+
+\---
+
+
+
+\## ✨ 作者
+
+
+
+thks-ai 
+
+AI × 原価管理の効率化を推進するエンジニア
+
+
+
+
+
 
