@@ -2,298 +2,67 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>資料総評AI</title>
-
+    <title>原価差異ナレッジAI（無料版）</title>
     <style>
-        body {
-            font-family: "Segoe UI", sans-serif;
-            margin: 40px;
-            background: #f5f7fa;
-        }
-
-        h2 {
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        #drop-area {
-            border: 2px dashed #4a90e2;
-            background: #ffffff;
-            padding: 40px;
-            text-align: center;
-            color: #4a90e2;
-            font-size: 18px;
-            border-radius: 12px;
-            transition: 0.2s;
-        }
-        #drop-area.dragover {
-            background-color: #e8f3ff;
-        }
-
-        #file-list {
-            margin-top: 15px;
-            background: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-        }
-
-        input, select {
-            padding: 8px;
-            width: 400px;
-            font-size: 15px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-        }
-
-        button {
-            background: #4a90e2;
-            color: white;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button:hover {
-            background: #357ac8;
-        }
-
-        /* プログレスバー */
-        #progress-container {
-            width: 100%;
-            background: #e0e0e0;
-            border-radius: 10px;
-            margin-top: 20px;
-            display: none;
-        }
-        #progress-bar {
-            width: 0%;
-            height: 20px;
-            background: #4a90e2;
-            border-radius: 10px;
-            transition: width 0.3s ease;
-        }
-        #progress-text {
-            margin-top: 8px;
-            font-size: 14px;
-            color: #4a90e2;
-            display: none;
-        }
-
-        #result-card {
-            margin-top: 30px;
-            padding: 20px;
-            background: #ffffff;
-            border-radius: 10px;
-            border: 1px solid #ddd;
-        }
-
-        mark {
-            background: yellow;
-            padding: 2px 4px;
-            border-radius: 3px;
-        }
+        body { font-family: sans-serif; margin: 40px; }
+        .container { max-width: 700px; margin: auto; }
+        textarea { width: 100%; height: 200px; }
+        .result-box { margin-top: 20px; padding: 15px; border: 1px solid #ccc; }
     </style>
 </head>
 <body>
+<div class="container">
+    <h1>原価差異ナレッジAI（無料版）</h1>
+    <p>単一ファイルを読み取り、簡易的な理由文を生成します。</p>
 
-<h2>📁 資料総評AI（ドラッグ＆ドロップ）</h2>
+    <h3>① ファイルをアップロード</h3>
+    <input type="file" id="fileInput">
 
-<div id="drop-area">
-    ここにファイルまたはフォルダをドラッグ＆ドロップ  
-    <br>（Word / Excel / PDF / PPT / TXT / フォルダ）
+    <h3>② 読み取った内容</h3>
+    <textarea id="content"></textarea>
+
+    <button onclick="generate()">③ 理由文を生成</button>
+
+    <div id="result" class="result-box"></div>
 </div>
-
-<div id="file-list"></div>
-
-<br>
-
-<label>質問文：</label><br>
-<input id="question" type="text" placeholder="例：材料費の増加原因を教えて"><br><br>
-
-<label>出力形式：</label><br>
-<select id="output-style">
-    <option value="簡潔">簡潔（1文）</option>
-    <option value="箇条書き">箇条書き</option>
-    <option value="詳細">詳細レポート</option>
-</select>
-
-<br><br>
-<button onclick="sendFiles()">送信</button>
-
-<!-- プログレスバー -->
-<div id="progress-container">
-    <div id="progress-bar"></div>
-</div>
-<div id="progress-text"></div>
-
-<div id="result-card"></div>
 
 <script>
-let droppedFiles = [];
-
-const dropArea = document.getElementById("drop-area");
-const fileList = document.getElementById("file-list");
-const progressContainer = document.getElementById("progress-container");
-const progressBar = document.getElementById("progress-bar");
-const progressText = document.getElementById("progress-text");
-const resultCard = document.getElementById("result-card");
-
-dropArea.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    dropArea.classList.add("dragover");
-});
-
-dropArea.addEventListener("dragleave", () => {
-    dropArea.classList.remove("dragover");
-});
-
-// ===============================
-// フォルダ対応 drop 処理
-// ===============================
-dropArea.addEventListener("drop", async (e) => {
-    e.preventDefault();
-    dropArea.classList.remove("dragover");
-
-    const items = e.dataTransfer.items;
-
-    for (const item of items) {
-        const entry = item.webkitGetAsEntry();
-        if (entry) {
-            await traverseFileTree(entry);
-        }
-    }
-
-    updateFileList();
-});
-
-// フォルダを再帰的に探索
-async function traverseFileTree(entry, path = "") {
-    return new Promise((resolve) => {
-        if (entry.isFile) {
-            entry.file((file) => {
-                droppedFiles.push(file);
-                resolve();
-            });
-        } else if (entry.isDirectory) {
-            const reader = entry.createReader();
-            reader.readEntries(async (entries) => {
-                for (const ent of entries) {
-                    await traverseFileTree(ent, path + entry.name + "/");
-                }
-                resolve();
-            });
-        }
-    });
-}
-
-// ===============================
-// ファイル一覧表示
-// ===============================
-function updateFileList() {
-    if (droppedFiles.length === 0) {
-        fileList.innerHTML = "";
-        return;
-    }
-
-    let html = "<b>読み込んだファイル一覧：</b><br><ul>";
-    droppedFiles.forEach((f) => {
-        html += `<li>${f.name}</li>`;
-    });
-    html += "</ul>";
-
-    fileList.innerHTML = html;
-}
-
-// ===============================
-// プログレスバー制御
-// ===============================
-function setProgress(percent, text) {
-    progressContainer.style.display = "block";
-    progressText.style.display = "block";
-    progressBar.style.width = percent + "%";
-    progressText.innerText = text;
-}
-
-// ===============================
-// /analyze に送信
-// ===============================
-async function sendFiles() {
-    if (droppedFiles.length === 0) {
-        alert("ファイルをドロップしてください");
-        return;
-    }
-
-    const question = document.getElementById("question").value;
-    const outputStyle = document.getElementById("output-style").value;
-
-    if (!question) {
-        alert("質問文を入力してください");
-        return;
-    }
-
+async function uploadFile(file) {
     const formData = new FormData();
-    droppedFiles.forEach(file => formData.append("files", file));
-    formData.append("question", question);
-    formData.append("output_style", outputStyle);
+    formData.append("file", file);
 
-    resultCard.innerHTML = "";
-
-    // プログレス開始
-    setProgress(10, "📄 資料を読み込んでいます...");
-
-    // 少し待って段階的に進める演出
-    setTimeout(() => setProgress(40, "🔍 RAG検索中..."), 500);
-    setTimeout(() => setProgress(70, "🤖 AIが回答を生成中..."), 1200);
-
-    const res = await fetch("/analyze", {
+    const res = await fetch("/upload_files", {
         method: "POST",
         body: formData
     });
 
     const data = await res.json();
-
-    // 完了
-    setProgress(100, "✅ 完了しました");
-
-    renderResult(data);
+    document.getElementById("content").value = data.content;
 }
 
-// ===============================
-// 結果表示（ハイライト対応）
-// ===============================
-function renderResult(json) {
-    let html = `<h3>📝 回答</h3><p>${json.answer}</p>`;
+document.getElementById("fileInput").addEventListener("change", (e) => {
+    uploadFile(e.target.files[0]);
+});
 
-    if (json.references && json.references.length > 0) {
-        html += `<h3>📚 根拠</h3>`;
-        json.references.forEach(ref => {
+async function generate() {
+    const content = document.getElementById("content").value;
 
-            // ハイライト処理
-            let highlighted = ref.text;
-            if (ref.highlight) {
-                highlighted = highlighted.replace(
-                    ref.highlight,
-                    `<mark>${ref.highlight}</mark>`
-                );
-            }
+    const formData = new FormData();
+    formData.append("content", content);
 
-            html += `
-                <div style="margin-bottom:10px;">
-                    <b>${ref.file}</b><br>
-                    <span>${highlighted}</span>
-                </div>
-            `;
-        });
-    }
+    const res = await fetch("/generate", {
+        method: "POST",
+        body: formData
+    });
 
-    resultCard.innerHTML = html;
+    const data = await res.json();
+    document.getElementById("result").innerText = data.result;
 }
 </script>
 
 </body>
 </html>
+
 
 
 
