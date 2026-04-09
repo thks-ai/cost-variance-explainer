@@ -38,8 +38,7 @@ AI が簡易的な説明文を生成します。
 ## 🧩 技術スタック（無料版）
 
 - FastAPI  
-- OpenAI API  
-- SentenceTransformer（MiniLM）  
+- OpenAI API   
 - Jinja2 Templates  
 - JavaScript / HTML / CSS  
 
