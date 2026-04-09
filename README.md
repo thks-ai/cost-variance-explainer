@@ -1,65 +1,73 @@
-# 📘 原価差異ナレッジAI（Cost Variance Explainer）
+# 📘 原価差異ナレッジAI（Cost Variance Explainer）【無料版】
 
-製造業の **原価差異の原因説明文を AI が自動生成**するツールです。
+製造業の **原価差異の原因説明文を AI が自動生成**する “無料版” です。
 
-Word / Excel / PDF / PPT / TXT / フォルダ をドラッグ＆ドロップするだけで、
-資料の内容を読み取り、RAG（過去理由文検索）＋ LLM により
-**最も妥当な原因説明文を生成**します。
+Word / Excel / PDF / PPT / TXT を **単一ファイルで** 読み取り、  
+AI が簡易的な説明文を生成します。
 
----
-
-## 🚀 特徴
-
-- 📁 **複数ファイルの一括取り込み（フォルダ対応）**
-- 🔍 **FAISS ベースの RAG（過去理由文検索）**
-- 🤖 **OpenAI GPT-4o-mini による理由文生成**
-- 📊 **根拠のハイライト表示**
-- 📝 **理由文の自動要約・品質スコアリング（拡張可能）**
-- 📦 **SQLite + ベクトルストアによる自己学習**
-- 🖥 **ブラウザで動く直感的な UI（FastAPI + Jinja2）**
-- 🟦 **Windows 1クリック起動（start_app.bat 同梱）**
+※ この無料版は「体験版」です。  
+※ 実務レベルの機能は有料版（BOOTH）に搭載しています。
 
 ---
 
-## 🧩 技術スタック
+## 🚀 無料版でできること
 
-- **FastAPI**
-- **OpenAI API**
-- **FAISS（vector search）**
-- **SentenceTransformer（MiniLM）**
-- **SQLite**
-- **Jinja2 Templates**
-- **JavaScript / HTML / CSS**
+- 📄 **単一ファイルの読み込み（フォルダ不可）**
+- 🤖 **簡易的な理由文生成（1パターン）**
+- 📝 **コピーして使えるテキスト出力**
+- 🖥 **ブラウザで動くシンプルな UI（FastAPI）**
 
 ---
 
-## 📁 ディレクトリ構成
+## ⚠ 無料版の制限（有料版との違い）
 
+無料版は「体験用」のため、以下の機能は含まれていません。
 
+- ❌ **フォルダ一括取り込み**
+- ❌ **RAG（過去理由文検索）**
+- ❌ **根拠ハイライト表示**
+- ❌ **自己学習（SQLite + ベクトルストア）**
+- ❌ **複数パターン生成**
+- ❌ **Excel / PDF 出力**
+- ❌ **1クリック起動（start_app.bat）**
+
+これらは **すべて有料版で利用可能** です。
+
+---
+
+## 🧩 技術スタック（無料版）
+
+- FastAPI  
+- OpenAI API  
+- SentenceTransformer（MiniLM）  
+- Jinja2 Templates  
+- JavaScript / HTML / CSS  
+
+※ RAG / FAISS / SQLite は無料版では使用しません。
+
+---
+
+## 📁 ディレクトリ構成（無料版）
 
 ```
 app/
 ├─ main.py
 ├─ api/
 ├─ services/
-├─ database/
-├─ vector_store/
 ├─ templates/
 └─ static/
 
 scripts/
 requirements.txt
 README.md
-start_app.bat
 
 ```
+
 ---
 
 ## 🛠 セットアップ
 
-🔑 **OpenAI APIキーについて**  
-本ツールを利用するには OpenAI APIキーが必要です。  
-各自で取得し、環境変数 **OPENAI_API_KEY** に設定してください。
+### 🔑 OpenAI APIキーの設定
 
 Windows:
 setx OPENAI_API_KEY "sk-xxxx"
@@ -69,47 +77,31 @@ Mac / Linux:
 export OPENAI_API_KEY="sk-xxxx"
 
 
-※ APIキーは絶対に公開しないでください。  
-※ 本リポジトリには APIキーは含まれていません。
-
 ---
 
-## 🟦 1クリック起動（Windows）
+## ▶ 起動方法
 
-本リポジトリには **start_app.bat** を同梱しています。  
-このファイルをダブルクリックするだけで、以下が自動で実行されます。
-
-- 仮想環境（venv）の有効化  
-- FastAPI サーバーの起動  
-- 5秒待機（サーバー起動の安定化）  
-- ブラウザで `http://localhost:8000` を自動オープン  
-
-初心者でも迷わず起動できるように設計されています。
-
----
-
-### 1. ライブラリのインストール
+1. ライブラリのインストール
 pip install -r requirements.txt
 
 
-### 2. サーバー起動
+2. サーバー起動
 uvicorn app.main:app --reload
 
 
-### 3. ブラウザでアクセス
+3. ブラウザでアクセス
 http://localhost:8000
 
 
 ---
 
-## 🧪 主な API エンドポイント
+## 🧪 主な API エンドポイント（無料版）
 
 | エンドポイント | 説明 |
 |---------------|------|
-| /analyze | 資料を解析し、AI が総評を生成 |
-| /generate | 原価差異の理由文を生成 |
-| /upload_files | ファイル取り込み（フォルダ対応） |
-| /edit | 理由文の編集画面 |
+| /analyze | 単一ファイルを解析し、簡易説明文を生成 |
+| /generate | 原価差異の理由文を生成（1パターン） |
+| /upload_files | 単一ファイルのアップロード |
 
 ---
 
@@ -117,20 +109,28 @@ http://localhost:8000
 
 以下は `.gitignore` により GitHub にアップロードされません：
 
-- data/（DB・ベクトルデータ）
 - uploaded/（ユーザーアップロード）
 - venv/
 - __pycache__/
 - *.db
 - *.pyc
-- app/vector_store/*.faiss
-- app/vector_store/*.pkl
 
 ---
 
-## 📄 ライセンス
+## 💼 有料版について（BOOTH）
 
-MIT License
+無料版では体験できない以下の機能を搭載しています：
+
+- 📁 **フォルダ一括取り込み**
+- 🔍 **RAG（過去理由文検索）**
+- 📊 **根拠ハイライト表示**
+- 🧠 **自己学習（SQLite + ベクトルストア）**
+- 🤖 **高品質生成（複数パターン）**
+- 📄 **Excel / PDF 出力**
+- 🟦 **1クリック起動（Windows）**
+
+👉 **有料版はこちら（BOOTH）**  
+※ リンクを貼る
 
 ---
 
@@ -138,9 +138,3 @@ MIT License
 
 thks-ai  
 AI × 原価管理の効率化を推進するエンジニア
-
-
-
-
-
-
