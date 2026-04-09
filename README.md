@@ -52,7 +52,7 @@ AI が簡易的な説明文を生成します。
 app/
 ├─ main.py
 ├─ config.py
-└─ __pycache__（あってOK）
+└─ __pycache__
 
 templates/
 ├─ index.html
