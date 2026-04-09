@@ -52,14 +52,15 @@ AI が簡易的な説明文を生成します。
 ```
 app/
 ├─ main.py
-├─ api/
-├─ services/
-├─ templates/
-└─ static/
+├─ config.py
+└─ __pycache__（あってOK）
 
-scripts/
-requirements.txt
+templates/
+├─ index.html
+
 README.md
+requirements.txt
+
 
 ```
 
