@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>原価差異ナレッジAI（無料版）</title>
+    <style>
+        body { font-family: sans-serif; margin: 40px; }
+        .container { max-width: 700px; margin: auto; }
+        textarea { width: 100%; height: 200px; }
+        .result-box { margin-top: 20px; padding: 15px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>原価差異ナレッジAI（無料版）</h1>
+    <p>単一ファイルを読み取り、簡易的な理由文を生成します。</p>
+
+    <h3>① ファイルをアップロード</h3>
+    <input type="file" id="fileInput">
+
+    <h3>② 読み取った内容</h3>
+    <textarea id="content"></textarea>
+
+    <button onclick="generate()">③ 理由文を生成</button>
+
+    <div id="result" class="result-box"></div>
+</div>
+
+<script>
+async function uploadFile(file) {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch("/upload_files", {
+        method: "POST",
+        body: formData
+    });
+
+    const data = await res.json();
+    document.getElementById("content").value = data.content;
+}
+
+document.getElementById("fileInput").addEventListener("change", (e) => {
+    uploadFile(e.target.files[0]);
+});
+
+async function generate() {
+    const content = document.getElementById("content").value;
+
+    const formData = new FormData();
+    formData.append("content", content);
+
+    const res = await fetch("/generate", {
+        method: "POST",
+        body: formData
+    });
+
+    const data = await res.json();
+    document.getElementById("result").innerText = data.result;
+}
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

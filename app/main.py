@@ -1,27 +1,31 @@
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi import Request
-import openai
 import tempfile
 import os
+
+from openai import OpenAI
+client = OpenAI()
 
 app = FastAPI()
 
 templates = Jinja2Templates(directory="templates")
-
-openai.api_key = os.getenv("OPENAI_API_KEY")
+templates.env.cache = {}
 
 # -------------------------
 # ルート（UI表示）
 # -------------------------
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse(
+        name="index.html",
+        context={"request": request},
+        request=request
+    )
 
 # -------------------------
-# 単一ファイルアップロード
+# 単一ファイルアップロード（テキストのみ）
 # -------------------------
 @app.post("/upload_files")
 async def upload_files(file: UploadFile = File(...)):
@@ -30,7 +34,7 @@ async def upload_files(file: UploadFile = File(...)):
         tmp.write(await file.read())
         tmp_path = tmp.name
 
-    # ファイル内容を読み取る
+    # テキストとして読み取る（無料版仕様）
     try:
         with open(tmp_path, "rb") as f:
             content = f.read().decode("utf-8", errors="ignore")
@@ -57,14 +61,15 @@ async def generate_reason(content: str = Form(...)):
 - 原価差異の理由文（短め）
 """
 
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[{"role": "user", "content": prompt}],
         max_tokens=300,
     )
 
-    result = response.choices[0].message["content"]
+    result = response.choices[0].message.content
     return {"result": result}
+
 
 
 
