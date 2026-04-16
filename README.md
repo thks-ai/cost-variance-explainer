@@ -146,6 +146,10 @@ http://localhost:8000
 
 ---
 
+📄 ライセンス
+MIT License
+商用利用可（有料版データの再配布は禁止）
+
 ## ✨ 作者
 
 thks-ai  
