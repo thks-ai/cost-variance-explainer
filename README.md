@@ -141,7 +141,7 @@ http://localhost:8000
 
 
 👉 **有料版はこちら（BOOTH）**  
-※ リンクを貼る
+(https://cost-variance.booth.pm/items/8188363)
 
 
 ---
